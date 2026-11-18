@@ -1,0 +1,4 @@
+estrategia,execucoes,refeicoes_media,refeicoes_dp,vazao_media,vazao_dp,jain_media,jain_dp,espera_max_media,espera_max_dp,deadlocks
+Ingênua,5,4,0.7,0.1,0.02,0.8,0.141,40.45,0.29,5
+Hierarquia,5,96.2,1.8,2.33,0.04,0.996,0.004,8.51,0.41,0
+Garçom,5,70.6,15.5,1.71,0.38,0.998,0.001,8.87,0.27,0

@@ -7,7 +7,7 @@ venv/
 .ruff_cache/
 build/
 dist/
-resultados/
+/resultados/
 .DS_Store
 .idea/
 .vscode/
