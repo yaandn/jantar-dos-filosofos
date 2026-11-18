@@ -8,11 +8,15 @@ Trabalho de **Sistemas Operacionais — Ciência da Computação, UFG**
 
 ![Deadlock reproduzido na solução ingênua](docs/img/deadlock.png)
 
-## Estado atual: Checkpoint 1 (prévia)
+## Estado atual: Checkpoint 2
 
-Primeira versão do código: a **solução ingênua** rodando com threads reais, com a possibilidade de
-**forçar o deadlock** e ver o **ciclo de espera** detectado automaticamente. As soluções entram nos
-próximos checkpoints (ver [Roteiro](#roteiro-por-checkpoint)).
+- **Ingênua**: reproduz o deadlock sob demanda (tecla `D`) e o detector mostra o ciclo de espera.
+- **Hierarquia de recursos** (Dijkstra): sempre o garfo de menor número primeiro; quebra a espera circular.
+- **Garçom**: semáforo deixa no máximo N−1 filósofos à mesa; também quebra a espera circular.
+- **Benchmark com repetições**: vazão, justiça (índice de Jain), espera máxima e deadlocks, com média e
+  desvio-padrão. Resultados em [`docs/resultados/checkpoint2/`](docs/resultados/checkpoint2/).
+
+Monitor e timeout entram no próximo checkpoint (ver [Roteiro](#roteiro-por-checkpoint)).
 
 ## Como rodar
 
@@ -32,8 +36,10 @@ python -m jantar                 # abre a simulação
 
 | Tecla | Ação |
 |---|---|
+| `1` / `2` / `3` | Ingênua / Hierarquia / Garçom (reinicia a mesa) |
 | `D` | **Forçar deadlock**: todos pegam o garfo esquerdo juntos |
 | `Espaço` | Pausar / continuar |
+| `+` / `-` | Velocidade |
 | `↑` / `↓` | Número de filósofos (2 a 10) |
 | `R` | Reiniciar |
 | `Esc` | Sair |
@@ -46,6 +52,15 @@ Sem interface, no terminal:
 ```bash
 python -m jantar --sem-interface --forcar-deadlock --tempo 8
 ```
+
+### Experimentos
+
+```bash
+python -m jantar.benchmark --tempo 10 --repeticoes 5 --saida resultados/normal
+python -m jantar.benchmark --tempo 10 --repeticoes 5 --forcar-deadlock --saida resultados/forcado
+```
+
+Gera `execucoes.csv` (uma linha por execução), `resumo.csv` e `resumo.md` (média ± desvio-padrão).
 
 ## Como funciona
 
@@ -72,9 +87,9 @@ filosofo(i):
 
 | Checkpoint | Código |
 |---|---|
-| **1 (atual)** | Ingênua + forçar deadlock + detector + pausa + nº de filósofos |
-| 2 | Hierarquia de recursos e garçom (quebram a espera circular) |
-| 3 | Monitor de Tanenbaum e timeout (posse e espera / não preempção) + benchmark comparativo |
+| 1 | Ingênua + forçar deadlock + detector + pausa + nº de filósofos |
+| **2 (atual)** | Hierarquia de recursos e garçom + benchmark com repetições |
+| 3 | Monitor de Tanenbaum e timeout (posse e espera / não preempção) |
 | Final | Comparação de métricas, relatório completo e demo |
 
 ## Testes
@@ -83,8 +98,8 @@ filosofo(i):
 pytest -q
 ```
 
-Verificam que a ingênua trava quando forçada, que vizinhos nunca comem juntos (exclusão mútua)
-e que o detector acha o ciclo de espera. O GitHub Actions roda tudo a cada push.
+Verificam que hierarquia e garçom comem sem travar (mesmo forçando), que a ingênua trava quando
+forçada, que vizinhos nunca comem juntos (exclusão mútua) e que o detector acha o ciclo de espera. O GitHub Actions roda tudo a cada push.
 
 ## Estrutura
 
@@ -92,7 +107,7 @@ e que o detector acha o ciclo de espera. O GitHub Actions roda tudo a cada push.
 src/jantar/
   mesa.py           garfos (locks), filósofos, tempo, "forçar deadlock"
   simulacao.py      cria as threads, detector de deadlock, métricas
-  estrategias/      uma estratégia por arquivo (checkpoint 1: ingênua)
+  estrategias/      uma estratégia por arquivo (ingênua, hierarquia, garçom)
   interface.py      visualização em Pygame (só lê o estado)
   benchmark.py      tabela de métricas por estratégia
   __main__.py       linha de comando

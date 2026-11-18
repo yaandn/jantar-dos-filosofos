@@ -1,6 +1,5 @@
-"""Testes de comportamento (checkpoint 1): a ingênua trava quando forçada, o
-detector acha o ciclo e vizinhos nunca comem juntos. Os testes das soluções
-voltam junto com elas nos próximos checkpoints."""
+"""Testes de comportamento: cada estratégia correta come sem travar, e a
+ingênua trava quando forçada. Rodam sem interface, em poucos segundos."""
 
 import time
 
@@ -10,6 +9,7 @@ from jantar.estrategias import ESTRATEGIAS
 from jantar.mesa import Estado
 from jantar.simulacao import Simulacao, ciclo_de_espera
 
+CORRETAS = [k for k, cls in ESTRATEGIAS.items() if not cls.pode_travar]
 RAPIDO = dict(pensar=(0.01, 0.05), comer=(0.01, 0.05), velocidade=1.0, semente=42)
 
 
@@ -20,6 +20,20 @@ def rodar(chave, segundos, forcar=False, n=5):
             sim.forcar_deadlock()
         time.sleep(segundos)
         return sim.retrato(), sim.deadlock_em
+
+
+@pytest.mark.parametrize("chave", CORRETAS)
+def test_todos_comem_sem_deadlock(chave):
+    r, deadlock_em = rodar(chave, 2.0)
+    assert deadlock_em is None
+    assert all(c > 0 for c in r.refeicoes), r.refeicoes
+
+
+@pytest.mark.parametrize("chave", CORRETAS)
+def test_forcar_nao_trava_solucoes(chave):
+    r, deadlock_em = rodar(chave, 3.0, forcar=True)
+    assert deadlock_em is None
+    assert r.total > 0
 
 
 def test_ingenua_trava_quando_forcada():

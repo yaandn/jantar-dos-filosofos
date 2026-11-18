@@ -2,8 +2,10 @@
 tudo são as threads dos filósofos.
 
 Teclas
+  1..3        trocar estratégia (reinicia a mesa)
   D           forçar deadlock (todos pegam o 1º garfo juntos)
   Espaço      pausar / continuar
+  + / -       velocidade
   ↑ / ↓       número de filósofos (2 a 10)
   R           reiniciar
   Esc         sair
@@ -34,8 +36,8 @@ MESA_TRAVADA = (74, 34, 52)
 AZUL, AMARELO, VERDE, VERMELHO = (59, 130, 246), (242, 179, 61), (34, 160, 107), (229, 72, 77)
 
 COR_ESTADO = {Estado.PENSANDO: AZUL, Estado.COM_FOME: AMARELO, Estado.COMENDO: VERDE}
-# Soluções previstas para os próximos checkpoints (exibidas no painel)
-PROXIMAS = ["Hierarquia de recursos", "Garçom (semáforo N−1)", "Monitor (Tanenbaum)", "Timeout com espera aleatória"]
+# Soluções previstas para o próximo checkpoint (exibidas no painel)
+PROXIMAS = ["Monitor (Tanenbaum)", "Timeout com espera aleatória"]
 FOME_LONGA = 3.0  # segundos de espera para pintar de vermelho (possível starvation)
 
 
@@ -60,6 +62,7 @@ class Interface:
         self.f = {k: fonte(s, b) for k, s, b in [
             ("titulo", 30, True), ("h", 22, True), ("txt", 18, False), ("txtb", 18, True),
             ("pequeno", 15, False), ("filo", 24, True), ("grande", 40, True)]}
+        self.chaves = list(ESTRATEGIAS)
         self.estrategia, self.n, self.velocidade = estrategia, n, velocidade
         self.pausado = False
         self.sim: Simulacao | None = None
@@ -175,16 +178,17 @@ class Interface:
         pygame.draw.rect(t, PAINEL, (x0 - 24, 0, LARGURA - x0 + 24, ALTURA))
         self.texto("ESTRATÉGIA", (x0, y), "pequeno", AMARELO)
         y += 24
-        cls = ESTRATEGIAS[self.estrategia]
-        pygame.draw.rect(t, AMARELO, (x0 - 8, y - 3, 380, 30), border_radius=15)
-        self.texto(cls.nome, (x0 + 4, y), "txtb", FUNDO)
-        self.texto("esquerdo → direito", (x0 + 170, y + 2), "pequeno", FUNDO)
-        y += 40
-        self.texto("PRÓXIMOS CHECKPOINTS", (x0, y), "pequeno", APAGADO)
-        y += 22
-        for nome in PROXIMAS:
-            self.texto(f"·  {nome}", (x0 + 4, y), "pequeno", APAGADO)
-            y += 21
+        for k, chave in enumerate(self.chaves):
+            cls = ESTRATEGIAS[chave]
+            atual = chave == self.estrategia
+            if atual:
+                pygame.draw.rect(t, AMARELO, (x0 - 8, y - 3, 380, 30), border_radius=15)
+            cor = FUNDO if atual else CREME
+            self.texto(f"{k + 1}  {cls.nome}", (x0 + 4, y), "txtb" if atual else "txt", cor)
+            self.texto(f"quebra: {cls.quebra}", (x0 + 170, y + 2), "pequeno", FUNDO if atual else APAGADO)
+            y += 34
+        self.texto("PRÓXIMO CHECKPOINT: " + " · ".join(PROXIMAS), (x0, y), "pequeno", APAGADO)
+        y += 24
 
         y += 14
         self.texto("REFEIÇÕES  ·  ESPERA MÁX", (x0, y), "pequeno", AMARELO)
@@ -212,7 +216,7 @@ class Interface:
 
         self.texto("CONTROLES", (x0, y), "pequeno", AMARELO)
         y += 24
-        for linha in ["D  forçar deadlock", "Espaço  pausar / continuar",
+        for linha in ["D  forçar deadlock", "Espaço  pausar", f"+ / −  velocidade ({self.velocidade:g}x)",
                       f"↑ / ↓  filósofos ({self.n})", "R  reiniciar    Esc  sair"]:
             self.texto(linha, (x0, y), "txt", SUAVE)
             y += 24
@@ -242,11 +246,20 @@ class Interface:
         k = ev.key
         if k == pygame.K_ESCAPE:
             return False
-        if k == pygame.K_d:
+        if pygame.K_1 <= k < pygame.K_1 + len(self.chaves):
+            self.estrategia = self.chaves[k - pygame.K_1]
+            self.reiniciar()
+        elif k == pygame.K_d:
             self.sim.forcar_deadlock()
         elif k == pygame.K_SPACE:
             self.pausado = not self.pausado
             self.sim.pausar(self.pausado)
+        elif k in (pygame.K_PLUS, pygame.K_EQUALS, pygame.K_KP_PLUS):
+            self.velocidade = min(8.0, self.velocidade * 2)
+            self.sim.mesa.velocidade = self.velocidade
+        elif k in (pygame.K_MINUS, pygame.K_KP_MINUS):
+            self.velocidade = max(0.25, self.velocidade / 2)
+            self.sim.mesa.velocidade = self.velocidade
         elif k == pygame.K_UP and self.n < 10:
             self.n += 1
             self.reiniciar()
