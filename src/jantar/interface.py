@@ -37,7 +37,7 @@ AZUL, AMARELO, VERDE, VERMELHO = (59, 130, 246), (242, 179, 61), (34, 160, 107),
 
 COR_ESTADO = {Estado.PENSANDO: AZUL, Estado.COM_FOME: AMARELO, Estado.COMENDO: VERDE}
 # Soluções previstas para o próximo checkpoint (exibidas no painel)
-PROXIMAS = ["Monitor (Tanenbaum)", "Timeout com espera aleatória"]
+PROXIMAS = ["Monitor", "Timeout"]
 FOME_LONGA = 3.0  # segundos de espera para pintar de vermelho (possível starvation)
 
 
@@ -187,7 +187,7 @@ class Interface:
             self.texto(f"{k + 1}  {cls.nome}", (x0 + 4, y), "txtb" if atual else "txt", cor)
             self.texto(f"quebra: {cls.quebra}", (x0 + 170, y + 2), "pequeno", FUNDO if atual else APAGADO)
             y += 34
-        self.texto("PRÓXIMO CHECKPOINT: " + " · ".join(PROXIMAS), (x0, y), "pequeno", APAGADO)
+        self.texto("Próximo checkpoint: " + " · ".join(PROXIMAS), (x0, y), "pequeno", APAGADO)
         y += 24
 
         y += 14
