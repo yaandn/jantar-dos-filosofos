@@ -2,10 +2,12 @@ from .base import Estrategia
 from .garcom import Garcom
 from .hierarquia import Hierarquia
 from .ingenua import Ingenua
+from .monitor import Monitor
+from .timeout import Timeout
 
-# Checkpoint 2: ingênua (reproduz o deadlock) + duas soluções que quebram a espera circular.
-# Monitor e timeout entram no próximo checkpoint.
-# Ordem = ordem das teclas 1..3 na interface
-ESTRATEGIAS: dict[str, type[Estrategia]] = {cls.chave: cls for cls in (Ingenua, Hierarquia, Garcom)}
+# Ordem = ordem das teclas 1..5 na interface
+ESTRATEGIAS: dict[str, type[Estrategia]] = {
+    cls.chave: cls for cls in (Ingenua, Hierarquia, Garcom, Monitor, Timeout)
+}
 
 __all__ = ["ESTRATEGIAS", "Estrategia"]
