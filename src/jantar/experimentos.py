@@ -4,11 +4,11 @@
 
 Três experimentos, cada execução num processo novo (threads e locks zerados):
 
-  E1  corretude   cenário forçado · 5 estratégias × N ∈ {5, 7, 10} × 20 repetições · 6 s
-  E2  desempenho  cenário normal  · 5 estratégias × N ∈ {5, 7, 10} × 20 repetições · 10 s
-  E3  longa       cenário normal  · 5 estratégias × N = 5 × 5 repetições · 60 s (starvation)
+  E1  corretude   cenário forçado · 5 estratégias × N ∈ {5, 7, 10} × 10 repetições · 5 s
+  E2  desempenho  cenário normal  · 5 estratégias × N ∈ {5, 7, 10} × 10 repetições · 8 s
+  E3  longa       cenário normal  · 5 estratégias × N = 5 × 3 repetições · 30 s (starvation)
 
-Tempos em segundos reais; a simulação roda a 4x (10 s reais = 40 s de simulação).
+Tempos em segundos reais; a simulação roda a 4x (8 s reais = 32 s de simulação).
 Cada execução vira uma linha de ``execucoes.csv`` assim que termina; rodar de novo
 retoma de onde parou (pula o que já existe).
 """
@@ -33,9 +33,9 @@ CAMPOS = ["experimento", "estrategia", "cenario", "n", "rep", "duracao_s", "refe
 def plano() -> list[dict]:
     tarefas = []
     for exp, cenario, tamanhos, reps, dur in (
-        ("E1", "forcado", (5, 7, 10), 20, 6.0),
-        ("E2", "normal", (5, 7, 10), 20, 10.0),
-        ("E3", "normal", (5,), 5, 60.0),
+        ("E1", "forcado", (5, 7, 10), 10, 5.0),
+        ("E2", "normal", (5, 7, 10), 10, 8.0),
+        ("E3", "normal", (5,), 3, 30.0),
     ):
         for n in tamanhos:
             for rep in range(1, reps + 1):
@@ -101,7 +101,7 @@ def main(argv=None) -> None:
         w = csv.DictWriter(fh, fieldnames=CAMPOS)
         if novo:
             w.writeheader()
-        ctx = mp.get_context("spawn")
+        ctx = mp.get_context("fork")
         with ctx.Pool(a.processos, maxtasksperchild=1) as pool:
             for k, linha in enumerate(pool.imap_unordered(executar, tarefas), 1):
                 w.writerow(linha)

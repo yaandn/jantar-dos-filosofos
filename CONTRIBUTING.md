@@ -26,7 +26,7 @@ As implementações de hierarquia, garçom, monitor e timeout já existem na bra
 (com os testes delas) e evolua o relatório.
 
 - [x] Checkpoint 2: hierarquia de recursos e garçom + benchmark com repetições
-- [ ] Checkpoint 3: monitor e timeout (trazer da branch `estrategias-completas`)
+- [x] Checkpoint 3: monitor e timeout + bateria final (315 execuções) + relatório no README
 - [ ] Gravar GIF/vídeo da simulação para os slides
 - [ ] Interface: grafo de alocação de recursos ao lado da mesa
 - [ ] Extra: Chandy–Misra, estratégia assimétrica (par/ímpar), demonstração de livelock
